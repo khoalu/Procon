@@ -150,7 +150,7 @@ void writeOutput(vector<action> decide)
     cout<<std::setw(4)<<out;
     ifs.close();
 }
-action decideEachAgent(int& staX,int& staY, agent &Ag,match Map)
+action decideEachAgent(int& staX,int& staY, agent &Ag,match Map,int teamID)
 {
     action decideOut;
     int dx_des,dy_des;
@@ -164,11 +164,11 @@ action decideEachAgent(int& staX,int& staY, agent &Ag,match Map)
     else dy_des=1;
     if(Ag.x+dx_des>Map.width || Ag.x+dx_des<1 )
     {
-
+        return false;
     }
     else if( Ag.y+dy_des <1||Ag.y+dy_des>Map.height)
     {
-
+        return false;
     }
     else if(Map.tiled[Ag.x+dx_des][Ag.y+dy_des]==0)
     {
@@ -181,16 +181,66 @@ action decideEachAgent(int& staX,int& staY, agent &Ag,match Map)
         staX++;
         staY++;
     }
+    else if(Map.tiled[Ag.x+dx_des][Ag.y+dy_des]==teamID)
+    {
+        return false;
+    }
     else
     {
         Ag.x+=dx_des;
         Ag.y+=dy_des;
-        decideOut.type="remove";
+        decideOut.type="remove"     ;
         decideOut.dx=dx_des;
         decideOut.dy=dy_des;
         decideOut.id=Ag.agentID;
     }
     return decideOut;
+}
+action decideEachAgent(int& staX,int& staY, agent &Ag,match Map,int teamID,int numOfTurns)
+{
+
+}
+void strategy2(int teamID,int numOfTurns)
+{
+    cout<<"Press enter to print output.json"<<endl;
+    while(true)
+    {
+        char x;
+        cin>>x;
+        if(x=='\n')break;
+    }
+    int numOfAgent;
+    vector<action>decision;
+    static int staX[10];
+    static int staY[10];
+    FOR(i,0,10)staX[i]=1,staY[i]=1;
+
+    if(teamID==now.tA.teamID)
+    {
+        numOfAgent=now.tA.ag.size();
+        FOR(i,0,now.act.size())
+        {
+            if(now.act[i].apply==-1)
+            {
+                FOR()
+            }
+        }
+    }
+        FOR(i,0,numOfAgent)
+        {
+            decision.push_back(decideEachAgent2(staX[i],staY[i],now.tA.ag[i],now,teamID,numOfTurns));
+        }
+    }
+    else
+    {
+        numOfAgent=now.tB.ag.size();
+        FOR(i,0,numOfAgent)
+        {
+            decision.push_back(decideEachAgent2(staX[i],staY[i],now.tB.ag[i],now,teamID,numOfTurns));
+        }
+    }
+    writeOutput(decision);
+    strategy2(teamID);
 }
 void strategy1(int teamID)
 {
@@ -205,18 +255,28 @@ void strategy1(int teamID)
     vector<action>decision;
     static int staX[10];
     static int staY[10];
-    FOR(i,0,10)staX=1,staY=1;
+    FOR(i,0,10)staX[i]=1,staY[i]=1;
     if(teamID==now.tA.teamID)
     {
         numOfAgent=now.tA.ag.size();
         FOR(i,0,numOfAgent)
         {
-            decision.push_back(decideEachAgent(staX[i],staY[i],now.tA.ag[i],now));
+            bool check=true;
+            action tmp=decideEachAgent(staX[i],staY[i],now.tA.ag[i],now,teamID,check)
+            if(check)decision.push_back(action);
+            else
+        {
+
+            }
         }
     }
     else
     {
-
+        numOfAgent=now.tB.ag.size();
+        FOR(i,0,numOfAgent)
+        {
+            decision.push_back(decideEachAgent(staX[i],staY[i],now.tB.ag[i],now,teamID));
+        }
     }
 
     writeOutput(decision);
@@ -235,6 +295,7 @@ int main()
     tmp.type="fdas";
     decide.push_back(tmp);
     decide.push_back(tmp);
-    writeOutput(decide);
+    //writeOutput(decide);
+    strategy1(5);
     return 0;
 }
