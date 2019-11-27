@@ -32,6 +32,8 @@ struct agent
 {
     int agentID;
     int x, y;
+    int prevX,prevY;
+    string type;
 };
 struct team
 {
@@ -172,33 +174,125 @@ action decideEachAgent(int& staX,int& staY, agent &Ag,match Map,int teamID)
     }
     else if(Map.tiled[Ag.x+dx_des][Ag.y+dy_des]==0)
     {
+
+        Ag.type="move";
+
         Ag.x+=dx_des;
         Ag.y+=dy_des;
+        Ag.prevX=Ag.x;
+        Ag.prevY=Ag.y;
         decideOut.type="move";
         decideOut.dx=dx_des;
         decideOut.dy=dy_des;
         decideOut.id=Ag.agentID;
         staX++;
         staY++;
+
     }
     else if(Map.tiled[Ag.x+dx_des][Ag.y+dy_des]==teamID)
     {
-        return false;
+        bool trang=false;
+        FOR(i,-1,2)
+        {
+            FOR(j,-1,2)
+            {
+                if(i==0 && j==0)continue;
+                if(abs(i)==abs(j))continue;
+                if(Map.tiled[Ag.x+i][Ag.y+j]==0)
+                {
+
+                    Ag.type="move";
+
+                    Ag.x+=i;
+                    Ag.y+=j;
+                    Ag.prevX=Ag.x;
+                    Ag.prevY=Ag.y;
+                    decideOut.type="move";
+                    decideOut.dx=i;
+                    decideOut.dy=j;
+                    decideOut.id=Ag.agentID;
+                    trang=true;
+                    break;
+                }
+            }
+            if(trang)break;
+        }
+        if(!trang)
+        {
+            FOR(i,-1,2)
+            {
+                FOR(j,-1,2)
+                {
+                    if(i==0 && j==0)continue;
+                    //if(abs(i)==abs(j))continue;
+                    if(Map.tiled[Ag.x+i][Ag.y+j]==teamID)
+                    {
+
+                        Ag.type="move";
+
+                        Ag.x+=i;
+                        Ag.y+=j;
+                        Ag.prevX=Ag.x;
+                        Ag.prevY=Ag.y;
+                        decideOut.type="move";
+                        decideOut.dx=i;
+                        decideOut.dy=j;
+                        decideOut.id=Ag.agentID;
+                        trang=true;
+                        break;
+                    }
+                }
+                if(trang)break;
+            }
+        }
+        if(!trang)
+        {
+            /*if(Ag.prevX==Ag.x && Ag.prevY==Ag.Y)
+            {
+                Ag.type="remove";
+                Ag.prevX=-1;
+                Ag.prevY=-1;
+                decideOut.type="remove"     ;
+                decideOut.dx=-1;
+                decideOut.dy=-1;
+                decideOut.id=Ag.agentID;
+            }
+            else
+            {
+                FOR(i,-1,2)
+                {
+                    FOR(j,-1,2)
+                    {
+                        if(j<=Ag.prevX && i<=Ag.prevY)continue;
+                        Ag.type="remove";
+                        Ag.prevX=j;
+                        Ag.prevY=i;
+                        decideOut.type="remove"     ;
+                        decideOut.dx=j;
+                        decideOut.dy=i;
+                        decideOut.id=Ag.agentID;
+                        i=5;j=5;
+                    }
+                }
+            }*/
+            vector<pair<  >>>
+            for((prevX,prevY)==vector[i])prevx, prev=vector[i+1];
+        }
     }
     else
     {
-        Ag.x+=dx_des;
-        Ag.y+=dy_des;
-        decideOut.type="remove"     ;
+
+        Ag.type="remove";
+     //   Ag.x+=dx_des;
+       // Ag.y+=dy_des;
+        Ag.prevX=Ag.x;
+        Ag.prevY=Ag.y;
+        decideOut.type="remove";
         decideOut.dx=dx_des;
         decideOut.dy=dy_des;
         decideOut.id=Ag.agentID;
     }
     return decideOut;
-}
-action decideEachAgent(int& staX,int& staY, agent &Ag,match Map,int teamID,int numOfTurns)
-{
-
 }
 void strategy2(int teamID,int numOfTurns)
 {
@@ -209,6 +303,7 @@ void strategy2(int teamID,int numOfTurns)
         cin>>x;
         if(x=='\n')break;
     }
+    readMap(1);
     int numOfAgent;
     vector<action>decision;
     static int staX[10];
@@ -262,7 +357,7 @@ void strategy1(int teamID)
         FOR(i,0,numOfAgent)
         {
             bool check=true;
-            action tmp=decideEachAgent(staX[i],staY[i],now.tA.ag[i],now,teamID,check)
+            action tmp=decideEachAgent(staX[i],staY[i],now.tA.ag[i],now,teamID,check);
             if(check)decision.push_back(action);
             else
         {
