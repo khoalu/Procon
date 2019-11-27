@@ -36,7 +36,7 @@ struct agent
 struct team
 {
     int teamID;
-    vector<agent> A, B;
+    vector<agent> ag;
     int tilePoint;
     int areaPoint;
 };
@@ -76,8 +76,7 @@ void readMap(int i)
         tmp.agentID=j["teams"][0]["agents"][i]["agentID"];
         tmp.x=j["teams"][0]["agents"][i]["x"];
         tmp.y=j["teams"][0]["agents"][i]["y"];
-        now.tA.A.push_back(tmp);
-        now.tB.A.push_back(tmp);
+        now.tA.ag.push_back(tmp);
     }
     FOR (i,0,j["teams"][1]["agents"].size())
     {
@@ -85,8 +84,7 @@ void readMap(int i)
         tmp.agentID=j["teams"][1]["agents"][i]["agentID"];
         tmp.x=j["teams"][1]["agents"][i]["x"];
         tmp.y=j["teams"][1]["agents"][i]["y"];
-        now.tA.B.push_back(tmp);
-        now.tB.B.push_back(tmp);
+        now.tB.ag.push_back(tmp);
     }
     FOR(i,0,now.height)
     {
@@ -121,15 +119,108 @@ void writeOutput(vector<action> decide)
     };
     FOR(i,0,decide.size())
     {
-        out["actions"].push_back("{ \"agentID\": 15, \"type\": 15,\"dx\": 15,\"dy\": 15 }"_json);
+        /*auto text=R"(
+        {
+            "agentID" : 15,
+            "type": "move",
+            "dx": 15,
+            "dy": 15
+        }
+        )";*/
+ //       out["actions"].push_back(json::get_to<string>("{ \"agentID\": 15, \"type\": 15,\"dx\": 15,\"dy\": 15 }"));
+        //out["actions"].push_back(json::parse(text));
+      /*  out["actions"]="{ \"agentID\": 15, \"type\": 15,\"dx\": 15,\"dy\": 15 }"_json;
+        string s;
+        out["actions"].get_to(s);
+        cout<<s<<endl;*/
+        //out.push_back(json::object_t::value_type("agentID", 15));
+        //string s="{ \"agentID\": 15, \"type\": 15,\"dx\": 15,\"dy\": 15 }";
+        //out["actions"].get_to(s);
+        //
+        //out["actions"].push_back(json::object_t::value_type("xhree", 3));
+        //out["actions"][i] += json::object_t::value_type("four", 4);
         out["actions"][i]["agentID"]=decide[i].id;
+       // out["actions"][i] += json::object_t::value_type("four", 4);
+        //out["actions"][i] += json::object_t::value_type("bour", 4);
         out["actions"][i]["type"]=decide[i].type;
         out["actions"][i]["dx"]=decide[i].dx;
         out["actions"][i]["dy"]=decide[i].dy;
     }
     ifs.open("decide.json",ios::out);
-    ifs<<std::setw(4)<<out;
+    cout<<std::setw(4)<<out;
     ifs.close();
+}
+action decideEachAgent(int& staX,int& staY, agent &Ag,match Map)
+{
+    action decideOut;
+    int dx_des,dy_des;
+    if(staX<=2)dx_des=1;
+    else
+    {
+        if((staX-2)%4==1)dx_des=-1;
+        else dx_des=1;
+    }
+    if(staY%4==1)dy_des=-1;
+    else dy_des=1;
+    if(Ag.x+dx_des>Map.width || Ag.x+dx_des<1 )
+    {
+
+    }
+    else if( Ag.y+dy_des <1||Ag.y+dy_des>Map.height)
+    {
+
+    }
+    else if(Map.tiled[Ag.x+dx_des][Ag.y+dy_des]==0)
+    {
+        Ag.x+=dx_des;
+        Ag.y+=dy_des;
+        decideOut.type="move";
+        decideOut.dx=dx_des;
+        decideOut.dy=dy_des;
+        decideOut.id=Ag.agentID;
+        staX++;
+        staY++;
+    }
+    else
+    {
+        Ag.x+=dx_des;
+        Ag.y+=dy_des;
+        decideOut.type="remove";
+        decideOut.dx=dx_des;
+        decideOut.dy=dy_des;
+        decideOut.id=Ag.agentID;
+    }
+    return decideOut;
+}
+void strategy1(int teamID)
+{
+    cout<<"Press enter to print output.json"<<endl;
+    while(true)
+    {
+        char x;
+        cin>>x;
+        if(x=='\n')break;
+    }
+    int numOfAgent;
+    vector<action>decision;
+    static int staX[10];
+    static int staY[10];
+    FOR(i,0,10)staX=1,staY=1;
+    if(teamID==now.tA.teamID)
+    {
+        numOfAgent=now.tA.ag.size();
+        FOR(i,0,numOfAgent)
+        {
+            decision.push_back(decideEachAgent(staX[i],staY[i],now.tA.ag[i],now));
+        }
+    }
+    else
+    {
+
+    }
+
+    writeOutput(decision);
+    strategy1(teamID);
 }
 int main()
 {
